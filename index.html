@@ -17,16 +17,6 @@
         });
       };
 
-      app.fb.login = function() {
-        FB.login(function(response) {
-          if (response.authResponse) {
-            app.fb.whoami();
-          } else {
-            console.log('User cancelled login or did not fully authorize.');
-          }
-        }, {scope: 'email'});
-      };
-
       window.fbAsyncInit = function() {
         FB.init({
           appId      : '228690990541549', // App ID
