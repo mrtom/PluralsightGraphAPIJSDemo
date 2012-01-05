@@ -3,11 +3,19 @@ var fs = require('fs');
 
 var app = express.createServer(express.logger());
 
+app.serveStatic = function(/* String */ filename, response) {
+  fs.readFile(__dirname + '/' + filename, 'utf8', function(err, text) {
+    // TODO: Handle errors
+    response.send(text);
+  });
+}
+
 app.get('/', function(request, response) {
-//    response.send('Hello World!');
-      var resp = fs.readFile(__dirname + '/index.html', 'utf8', function(err, text){
-        response.send(text);
-      });
+  app.serveStatic('index.html', response);
+});
+
+app.get('/channel.html', function(request, response) {
+  app.serveStatic('channel.html', response);
 });
 
 var port = process.env.PORT || 3000;
