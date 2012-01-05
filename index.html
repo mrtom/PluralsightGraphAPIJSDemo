@@ -1,12 +1,32 @@
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
   <head>
+    <meta charset="utf-8">
+    <title>Pluralsight Javascript Graph API Demo Page</title>
   </head>
 
   <body>
+    <div id="name">Your name should be shown here</div>
     <div id="fb-root"></div>
     <script>
+      app = window.app || {};
+      app.fb = app.fb || {};
+      app.fb.whoami = function() {
+        FB.api('/me', function(response) {
+          document.getElementById('name').innerHTML = response.name;
+        });
+      };
+
+      app.fb.login = function() {
+        FB.login(function(response) {
+          if (response.authResponse) {
+            app.fb.whoami();
+          } else {
+            console.log('User cancelled login or did not fully authorize.');
+          }
+        }, {scope: 'email'});
+      };
+
       window.fbAsyncInit = function() {
         FB.init({
           appId      : '228690990541549', // App ID
@@ -14,6 +34,30 @@
           status     : true, // check login status
           cookie     : true, // enable cookies to allow the server to access the session
           xfbml      : true  // parse XFBML
+        });
+
+        FB.getLoginStatus(function(response) {
+          if (response.status === 'connected') {
+            // the user is logged in and connected to your app
+            app.fb.whoami();
+          } else if (response.status === 'not_authorized') {
+            // The user is logged in to Facebook, but not connected to the app
+            // Create a login button for them
+
+            var loginButton = document.createElement('div');
+            loginButton.setAttribute('class', 'fb-login-button');
+            loginButton.setAttribute('data-show-faces', 'true');
+            loginButton.setAttribute('data-max-rows', '1');
+            document.body.appendChild(loginButton);
+            FB.Event.subscribe('auth.authResponseChange', function(response) {
+              app.fb.whoami();
+            });
+            
+            FB.XFBML.parse();
+          } else {
+            // the user isn't even logged in to Facebook.
+            document.getElementById('name').innerHTML = "You need to log in to Facebook if you want a personalised experience";
+          }
         });
       };
 
