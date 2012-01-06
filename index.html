@@ -8,13 +8,21 @@
   <body>
     <div id="name">Your name should be shown here</div>
     <div id="fb-root"></div>
+
     <script>
       app = window.app || {};
-      app.fb = app.fb || {};
-      app.fb.whoami = function() {
+      app.whoami = function() {
         FB.api('/me', function(response) {
-          document.getElementById('name').innerHTML = response.name;
+          document.getElementById('name').innerHTML = 'Hello ' + response.name;
         });
+      };
+
+      app.addFBLoginButton = function(/* Node */ parent) {
+        var loginButton = document.createElement('div');
+        loginButton.setAttribute('class', 'fb-login-button');
+        loginButton.setAttribute('data-show-faces', 'true');
+        loginButton.setAttribute('data-max-rows', '1');
+        parent.appendChild(loginButton);
       };
 
       window.fbAsyncInit = function() {
@@ -23,24 +31,22 @@
           channelUrl : 'http://pluralsightdemo.herokuapp.com/channel.html', // Channel File
           status     : true, // check login status
           cookie     : true, // enable cookies to allow the server to access the session
-          xfbml      : true  // parse XFBML
+          xfbml      : false // parse XFBML
         });
 
         FB.getLoginStatus(function(response) {
           if (response.status === 'connected') {
             // the user is logged in and connected to your app
-            app.fb.whoami();
+            app.whoami();
           } else if (response.status === 'not_authorized') {
             // The user is logged in to Facebook, but not connected to the app
-            // Create a login button for them
+            document.getElementById('name').innerHTML = "Please connect my App with Facebook for a personalised experience";
 
-            var loginButton = document.createElement('div');
-            loginButton.setAttribute('class', 'fb-login-button');
-            loginButton.setAttribute('data-show-faces', 'true');
-            loginButton.setAttribute('data-max-rows', '1');
-            document.body.appendChild(loginButton);
+            // Create a login button for them
+            app.addFBLoginButton(document.body);
+
             FB.Event.subscribe('auth.authResponseChange', function(response) {
-              app.fb.whoami();
+              app.whoami();
             });
             
             FB.XFBML.parse();
